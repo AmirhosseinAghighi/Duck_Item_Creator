@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <title>Document</title>
+
+    <style>
+        body {
+            background-color: rgb(228, 228, 228)
+        }
+
+        .main {
+            text-align: center;
+        }
+
+        .combine-box {
+            width: 100%;
+        }
+
+        .loadanim {
+            animation: fadeIn;
+            animation-duration: 1000ms;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(startYposition);
+            } 
+            100% {
+                opacity: 1;
+                transform: translateY(endYposition);
+            }
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="container main bg-light rounded p-2">
+            <div id="app">
+                <div v-if="error !== ''" class="alert alert-warning" role="alert">
+                    {{ error }}
+                  </div>
+                <h1>Duck Item Creator</h1>
+                <div v-for="item in object" class="form-group row border-bottom p-2">
+                    <label for="inputName" class="col-sm-2 col-form-label">{{ item.name }}</label>
+                    <div class="col-sm-10">
+                    <input type="text" class="form-control" id="inputName" v-model="item.text" :placeholder="item.example" v-if="item.mode === 'input'">
+                    <input type="checkbox" class="form-check-input" id="inputName" v-model="item.text" :placeholder="item.example" v-if="item.mode === 'checkbox'">
+                    <input type="number" class="form-control" id="inputName" v-model="item.text" :placeholder="item.example" v-if="item.mode === 'number'">
+                    </div>
+                </div>
+            </div>
+
+            <div class="combine-box border p-2" id="combine">
+                <label>Combine</label>
+                <button class="btn btn-primary float-right p-left-2" v-on:click="newaccept">+</button>
+                <div class="col-sm-12 p-3">
+                    <div class="form-group row p-2">
+                        <label for="inputName" class="col-sm-2 col-form-label">accept</label>
+                        <div class="col-sm-10 m-0">
+                            <div class="col-sm-12 d-flex m-2" v-for="item in accepts">
+                                <input v-model="item.text" type="text" class="form-control m-1" id="inputName" placeholder="schafter" >
+                                <button v-on:click="Delete(item.id)" class="btn btn-danger" v-if="item.id !== 0">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row p-2 loadanim" v-if="accepts[0].text !== ''">
+                        <label for="inputName" class="col-sm-2 col-form-label loadanim">reward</label>
+                        <div class="col-sm-10 m-0">
+                            <div class="col-sm-12 d-flex m-2">
+                                <input v-model="reward" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="toolkit" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row p-2 loadanim" v-if="accepts[0].text !== ''">
+                        <label for="inputName" class="col-sm-2 col-form-label loadanim">animation</label>
+                        <div class="col-sm-10 m-0">
+                            <div class="col-sm-12 d-flex m-2">
+                                <input v-model="animation.dict" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="anim dict" >
+                                <input v-model="animation.name" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="anim name" >
+                                <input v-model="animation.timeOut" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="anim timeOut" >
+                                <input v-model="animation.text" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="anim text" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="result" class="d-flex flex-column p-2">
+                <button v-on:click="create" class="btn btn-success m-2">create</button>
+                <!-- <pre class="prettyprint w-90 m-2" v-if="code !== ''">{{ code }}</pre> -->
+                <pre class="prettyprint w-90 m-2" v-if="code !== ''">{{ code }}</pre>
+                <button class="btn btn-primary btn-primary m-2" v-on:click="copy">Copy to clipboard</button>
+            </div>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                object: [
+                    {name: 'item name', example: 'handcuffs', text: '', for: "name", mode: 'input'}, // should be first
+                    {name: 'item label', example: 'handcuffs', text: '', for: "label", mode: 'input'},
+                    {name: 'item weight', example: 'weight', text: '', for: "weight", mode: 'number'},
+                    {name: 'item type', example: 'item type', text: '', for: "type", mode: 'input'},
+                    {name: 'item image', example: 'item image', text: '', for: "image", mode: 'input'},
+                    {name: 'item unique', example: 'true or false', text: false, for: "unique", mode: 'checkbox'},
+                    {name: 'item usable', example: 'true or false', text: false, for: "usable", mode: 'checkbox'},
+                    {name: 'item shouldClose', example: 'true or false', text: false, for: "shouldClose", mode: 'checkbox'},
+                    {name: 'description', example: 'police handcuff', text: '', for: "description", mode: 'input'}
+                ],
+                error: ''
+            }
+        })
+
+        var combine = new Vue({
+            el: '#combine',
+            data: {
+                accepts: [
+                    {id: 0, text: ''},
+                ],
+                animation: {
+                    dict: '',
+                    name: '',
+                    timeOut: '',
+                    text: ''
+                },
+                reward: '',
+            },
+            methods: {
+                newaccept: function () {
+                    this.accepts.push({id: this.accepts.length})
+                },
+                Delete: function (id) {
+                    const index = this.accepts.indexOf({id: id})
+                    this.accepts.splice(index, 1)
+                }
+            }
+        })
+
+        var result = new Vue({
+            el: "#result",
+            data: {
+                code: ''
+            },
+            methods: {
+                error: function(error) {
+                    app.error = error
+                    document.body.scrollTop = 0; // For Safari
+                    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+                },
+                create: function() {
+                    let status = true
+                    let combinestatus = true
+                    let anim = true
+
+                    let table = {}
+
+                    for (val in app.object) {
+                        if (app.object[val].mode !== 'checkbox') {
+                            console.log(app.object[val].text)
+                            if (app.object[val].text !== true && app.object[val].text !== false && app.object[val].text === '') {
+                                status = false
+                                this.error('please fill all fields')
+                                return
+                            } else {
+                                if (!table[app.object[0].text]){
+                                    table[app.object[0].text] = {}
+                                }
+                                table[app.object[0].text][app.object[val].for] = app.object[val].text
+                            }
+                        } else {
+                            table[app.object[0].text][app.object[val].for] = app.object[val].text
+                        }
+                    }
+
+                    let accepts = []
+                    for (val in combine.accepts) {
+                        if (!combine.accepts[val].text || combine.accepts[val].text === '') {
+                            if (combine.accepts[val].id !== 0) {
+                                combine.Delete(combine.accepts[val].id)
+                            } else {
+                                combinestatus = false
+                            }
+                        } else {
+                            accepts.push(combine.accepts[val].text)
+                        }
+                    }
+
+
+                    if (combinestatus) {
+                        table[app.object[0].text]['combinable'] = {
+                            accept: accepts,
+                            reward: combine.reward,
+                        }
+                        if (combine.animation.dict === '' || combine.animation.name === '' || combine.animation.timeOut === '' || combine.animation.text === '') {
+                            anim = false
+                        } else {
+                            table[app.object[0].text]['combinable'].anim = {
+                                ['dict']: combine.animation.dict,
+                                ['lib']: combine.animation.name,
+                                ['timeOut']: combine.animation.timeOut,
+                                ['text']: combine.animation.text
+                            }
+                        }
+                    } else {
+                        table[app.object[0].text]['combinable'] = null
+                    }
+
+
+
+                    $.ajax({
+                        url: 'https://corsanywhere.herokuapp.com/http://mageddo.com/tools/api/json-to-lua-table',
+                        contentType: 'application/json',
+                        type: 'post',
+                        data: JSON.stringify(table),
+                        dataType: 'text',
+                        }).done(function (data) {
+                            let ragex = /\w+(?=\s+=)/g
+                            result.code = data.replace(ragex, "['$&']").replace(/(\r\n|\n|\r)/gm, "");
+                            result.code = result.code.substring(1, result.code.length - 1);
+                            result.code += ','
+                    })
+                        
+
+                    this.error('')
+                },
+                copy: function () {
+                    navigator.clipboard.writeText(result.code)
+                    alert('copied')
+                }
+            }
+        })
+    </script>
+    
+</body>
+</html>
