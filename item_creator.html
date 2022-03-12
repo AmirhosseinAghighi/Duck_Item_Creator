@@ -178,7 +178,11 @@
                                 if (!table[app.object[0].text]){
                                     table[app.object[0].text] = {}
                                 }
-                                table[app.object[0].text][app.object[val].for] = app.object[val].text
+                                if (app.object[val].for === 'weight') {
+                                    table[app.object[0].text][app.object[val].for] = Number(app.object[val].text)
+                                } else {
+                                    table[app.object[0].text][app.object[val].for] = app.object[val].text
+                                }
                             }
                         } else {
                             table[app.object[0].text][app.object[val].for] = app.object[val].text
