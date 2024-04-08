@@ -1,252 +1,360 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+    integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
-    <title>Document</title>
+  <title>Duck Item Creator</title>
 
-    <style>
-        body {
-            background-color: rgb(228, 228, 228)
-        }
+  <style>
+    body {
+      background-color: rgb(228, 228, 228)
+    }
 
-        .main {
-            text-align: center;
-        }
+    .main {
+      text-align: center;
+    }
 
-        .combine-box {
-            width: 100%;
-        }
+    .combine-box {
+      width: 100%;
+    }
 
-        .loadanim {
-            animation: fadeIn;
-            animation-duration: 1000ms;
-        }
+    .loadanim {
+      animation: fadeIn;
+      animation-duration: 1000ms;
+    }
 
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-                transform: translateY(startYposition);
-            } 
-            100% {
-                opacity: 1;
-                transform: translateY(endYposition);
-            }
-        }
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(startYposition);
+      }
 
-    </style>
+      100% {
+        opacity: 1;
+        transform: translateY(endYposition);
+      }
+    }
+
+    pre {
+      text-align: left;
+    }
+
+    .form-group label {
+      text-align: left;
+    }
+
+    input {
+      text-align: left;
+    }
+  </style>
 
 </head>
+
 <body>
-    <div class="container main bg-light rounded p-2">
-            <div id="app">
-                <div v-if="error !== ''" class="alert alert-warning" role="alert">
-                    {{ error }}
-                  </div>
-                <h1>Duck Item Creator</h1>
-                <div v-for="item in object" class="form-group row border-bottom p-2">
-                    <label for="inputName" class="col-sm-2 col-form-label">{{ item.name }}</label>
-                    <div class="col-sm-10">
-                    <input type="text" class="form-control" id="inputName" v-model="item.text" :placeholder="item.example" v-if="item.mode === 'input'">
-                    <input type="checkbox" class="form-check-input" id="inputName" v-model="item.text" :placeholder="item.example" v-if="item.mode === 'checkbox'">
-                    <input type="number" class="form-control" id="inputName" v-model="item.text" :placeholder="item.example" v-if="item.mode === 'number'">
-                    </div>
-                </div>
-            </div>
-
-            <div class="combine-box border p-2" id="combine">
-                <label>Combine</label>
-                <button class="btn btn-primary float-right p-left-2" v-on:click="newaccept">+</button>
-                <div class="col-sm-12 p-3">
-                    <div class="form-group row p-2">
-                        <label for="inputName" class="col-sm-2 col-form-label">accept</label>
-                        <div class="col-sm-10 m-0">
-                            <div class="col-sm-12 d-flex m-2" v-for="item in accepts">
-                                <input v-model="item.text" type="text" class="form-control m-1" id="inputName" placeholder="schafter" >
-                                <button v-on:click="Delete(item.id)" class="btn btn-danger" v-if="item.id !== 0">Delete</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group row p-2 loadanim" v-if="accepts[0].text !== ''">
-                        <label for="inputName" class="col-sm-2 col-form-label loadanim">reward</label>
-                        <div class="col-sm-10 m-0">
-                            <div class="col-sm-12 d-flex m-2">
-                                <input v-model="reward" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="toolkit" >
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group row p-2 loadanim" v-if="accepts[0].text !== ''">
-                        <label for="inputName" class="col-sm-2 col-form-label loadanim">animation</label>
-                        <div class="col-sm-10 m-0">
-                            <div class="col-sm-12 d-flex m-2">
-                                <input v-model="animation.dict" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="anim dict" >
-                                <input v-model="animation.name" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="anim name" >
-                                <input v-model="animation.timeOut" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="anim timeOut" >
-                                <input v-model="animation.text" type="text" class="form-control m-1 loadanim" id="inputName" placeholder="anim text" >
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="result" class="d-flex flex-column p-2">
-                <button v-on:click="create" class="btn btn-success m-2">create</button>
-                <!-- <pre class="prettyprint w-90 m-2" v-if="code !== ''">{{ code }}</pre> -->
-                <pre class="prettyprint w-90 m-2" v-if="code !== ''">{{ code }}</pre>
-                <button class="btn btn-primary btn-primary m-2" v-on:click="copy">Copy to clipboard</button>
-            </div>
+  <div class="container main bg-light rounded p-2">
+    <div id="app">
+      <div v-if="error !== ''" class="alert alert-warning" role="alert">
+        {{ error }}
+      </div>
+      <h1>Duck Item Creator</h1>
+      <div v-for="item in object" class="form-group row border-bottom p-2">
+        <label for="inputName" class="col-sm-2 col-form-label">{{ item.name }}</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="inputName" v-model="item.text" :placeholder="item.example"
+            v-if="item.mode === 'input'">
+          <input type="checkbox" class="form-check-input" id="inputName" v-model="item.text" :placeholder="item.example"
+            v-if="item.mode === 'checkbox'">
+          <input type="number" class="form-control" id="inputName" v-model="item.text" :placeholder="item.example"
+            v-if="item.mode === 'number'">
+          <select class="form-control" v-model="item.text" v-if="item.mode === 'select'">
+            <option v-for="option in item.options" :value="option">{{ option }}</option>
+          </select>
+        </div>
+      </div>
     </div>
 
-    <script>
-        var app = new Vue({
-            el: '#app',
-            data: {
-                object: [
-                    {name: 'item name', example: 'handcuffs', text: '', for: "name", mode: 'input'}, // should be first
-                    {name: 'item label', example: 'handcuffs', text: '', for: "label", mode: 'input'},
-                    {name: 'item weight', example: 'weight', text: '', for: "weight", mode: 'number'},
-                    {name: 'item type', example: 'item type', text: '', for: "type", mode: 'input'},
-                    {name: 'item image', example: 'item image', text: '', for: "image", mode: 'input'},
-                    {name: 'item unique', example: 'true or false', text: false, for: "unique", mode: 'checkbox'},
-                    {name: 'item useable', example: 'true or false', text: false, for: "useable", mode: 'checkbox'},
-                    {name: 'item shouldClose', example: 'true or false', text: false, for: "shouldClose", mode: 'checkbox'},
-                    {name: 'description', example: 'police handcuff', text: '', for: "description", mode: 'input'}
-                ],
-                error: ''
-            }
-        })
+    <div class="combine-box border p-2" id="combine">
+      <label>Combine</label>
+      <button class="btn btn-primary float-right p-left-2" v-on:click="newaccept">+</button>
+      <div class="col-sm-12 p-3">
+        <div class="form-group row p-2">
+          <label for="inputName" class="col-sm-2 col-form-label">accept</label>
+          <div class="col-sm-10 m-0">
+            <div class="col-sm-12 d-flex m-2" v-for="item in accepts">
+              <input v-model="item.text" type="text" class="form-control m-1" id="inputName" placeholder="schafter">
+              <button v-on:click="Delete(item.id)" class="btn btn-danger" v-if="item.id !== 0">Delete</button>
+            </div>
+          </div>
+        </div>
 
-        var combine = new Vue({
-            el: '#combine',
-            data: {
-                accepts: [
-                    {id: 0, text: ''},
-                ],
-                animation: {
-                    dict: '',
-                    name: '',
-                    timeOut: '',
-                    text: ''
-                },
-                reward: '',
-            },
-            methods: {
-                newaccept: function () {
-                    this.accepts.push({id: this.accepts.length})
-                },
-                Delete: function (id) {
-                    const index = this.accepts.indexOf({id: id})
-                    this.accepts.splice(index, 1)
+        <div class="form-group row p-2 loadanim" v-if="accepts[0].text !== ''">
+          <label for="inputName" class="col-sm-2 col-form-label loadanim">reward</label>
+          <div class="col-sm-10 m-0">
+            <div class="col-sm-12 d-flex m-2">
+              <input v-model="reward" type="text" class="form-control m-1 loadanim" id="inputName"
+                placeholder="toolkit">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row p-2 loadanim" v-if="accepts[0].text !== ''">
+          <label for="inputName" class="col-sm-2 col-form-label loadanim">animation</label>
+          <div class="col-sm-10 m-0">
+            <div class="col-sm-12 d-flex m-2">
+              <input v-model="animation.dict" type="text" class="form-control m-1 loadanim" id="inputName"
+                placeholder="anim dict">
+              <input v-model="animation.name" type="text" class="form-control m-1 loadanim" id="inputName"
+                placeholder="anim name">
+              <input v-model="animation.timeOut" type="number" class="form-control m-1 loadanim" id="inputName"
+                placeholder="anim timeOut">
+              <input v-model="animation.text" type="text" class="form-control m-1 loadanim" id="inputName"
+                placeholder="anim text">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="result" class="d-flex flex-column p-2">
+      <button v-on:click="create" class="btn btn-success m-2">create</button>
+      <pre class="prettyprint w-90 m-2" v-if="code !== ''">{{ code }}</pre>
+      <button class="btn btn-primary btn-primary m-2" v-on:click="copy">Copy to clipboard</button>
+    </div>
+  </div>
+
+  <script>
+    // https://github.com/yhchen/json_to_lua i just a little a bit for load well in browser and indent part
+    const lodash = window._
+    let MaxPrettyExpandDepth = 0;
+    const INIFINIT = 65536;
+    function jsObjectToLua(obj) {
+      MaxPrettyExpandDepth = 0;
+      return toLua(obj, 0);
+    }
+    function jsonToLua(s) {
+      MaxPrettyExpandDepth = 0;
+      const obj = JSON.parse(s);
+      return toLua(obj, 0);
+    }
+    function jsObjectToLuaPretty(obj, maxPrettyExpandDepth = INIFINIT) {
+      MaxPrettyExpandDepth = maxPrettyExpandDepth;
+      return toLua(obj, 0);
+    }
+    function jsonToLuaPretty(s, maxPrettyExpandDepth = INIFINIT) {
+      MaxPrettyExpandDepth = maxPrettyExpandDepth;
+      const obj = JSON.parse(s);
+      return toLua(obj, 0);
+    }
+    function makeLuaKey(s) {
+      const isword = isValidWord(s);
+      if (parseInt(s).toString() == s) {
+        return `[${s}]`;
+      }
+      else if (isword) {
+        return s;
+      }
+      return `["${s}"]`;
+    }
+    const NumberCharSet = new Set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    const WordFirstValidCharSet = new Set(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+      '_']);
+    function isValidWord(s) {
+      for (let i = 0; i < s.length; ++i) {
+        const c = s[i];
+        if (i == 0) {
+          if (!WordFirstValidCharSet.has(c))
+            return false;
+        }
+        else {
+          if (!WordFirstValidCharSet.has(c) && !NumberCharSet.has(c))
+            return false;
+        }
+      }
+      return true;
+    }
+    function toLua(obj, currDepth, CurrEntry) {
+      const pretty = MaxPrettyExpandDepth > currDepth;
+      const NextDepth = currDepth + 1;
+      CurrEntry = (CurrEntry != undefined && pretty) ? CurrEntry + '  ' : '';
+      const ObjectEntry = (CurrEntry != undefined && pretty) ? CurrEntry + '  ' : '';
+      const EndLine = pretty ? '\n' : '';
+      const WriteSpace = pretty ? ' ' : '';
+      if (obj === null || obj === undefined) {
+        return 'nil';
+      }
+      if (!lodash.isObject(obj)) {
+        if (typeof obj === 'string') {
+          return '"' + obj + '"';
+        }
+        return obj.toString();
+      }
+      let result = `{` + EndLine, isArray = obj instanceof Array, len = lodash.size(obj), i = 0;
+      lodash.forEach(obj, function (v, k) {
+        let objStr = '';
+        if (isArray) {
+          objStr = toLua(v, NextDepth, CurrEntry);
+        }
+        else {
+          objStr = `${makeLuaKey(k)}${WriteSpace}=${WriteSpace}${toLua(v, NextDepth, CurrEntry)}`;
+        }
+        if (i < len - 1) {
+          objStr += ',';
+        }
+        i += 1;
+        result += ObjectEntry + objStr + EndLine;
+      });
+      result += CurrEntry + '}';
+      return result;
+    }
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        object: [
+          { name: 'Item Name', example: 'handcuffs', text: '', for: "name", mode: 'input' }, // should be first
+          { name: 'Item Label', example: 'handcuffs', text: '', for: "label", mode: 'input' },
+          { name: 'Item weight', example: '500', text: '', for: "weight", mode: 'number' },
+          { name: 'Item Type', example: 'item/weapon', text: 'item', for: "type", mode: 'select', options: ["item", "weapon"] },
+          { name: 'Item Image', example: 'handcuffs.png', text: '', for: "image", mode: 'input' },
+          { name: 'Item Description', example: 'It\'s item you can cuff other people with that', text: '', for: "description", mode: 'input' },
+          { name: 'Item Unique', example: 'true or false', text: false, for: "unique", mode: 'checkbox' },
+          { name: 'Item Usable', example: 'true or false', text: false, for: "useable", mode: 'checkbox' },
+          { name: 'Inventory should close on use?', example: 'true or false', text: false, for: "shouldClose", mode: 'checkbox' },
+          { name: 'Beautify the code?', example: 'if this not check it give you one line code', text: true, for: "unMinify", mode: 'checkbox' },
+        ],
+        error: ''
+      }
+    })
+
+    var combine = new Vue({
+      el: '#combine',
+      data: {
+        accepts: [
+          { id: 0, text: '' },
+        ],
+        animation: {
+          dict: '',
+          name: '',
+          timeOut: '',
+          text: ''
+        },
+        reward: '',
+      },
+      methods: {
+        newaccept: function () {
+          this.accepts.push({ id: this.accepts.length })
+        },
+        Delete: function (id) {
+          const index = this.accepts.indexOf({ id: id })
+          this.accepts.splice(index, 1)
+        }
+      }
+    })
+    var result = new Vue({
+      el: "#result",
+      data: {
+        code: ''
+      },
+      methods: {
+        error: function (error) {
+          app.error = error
+          document.body.scrollTop = 0; // For Safari
+          document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        },
+        create: function () {
+          let status = true
+          let combinestatus = true
+          let anim = true
+
+          let table = {}
+          let unMinify = false
+
+          for (val in app.object) {
+            if (app.object[val].mode !== 'checkbox') {
+              if (app.object[val].text !== true && app.object[val].text !== false && app.object[val].text === '') {
+                status = false
+                this.error('Please fill all the fields')
+                return
+              } else {
+                if (!table[app.object[0].text]) {
+                  table[app.object[0].text] = {}
                 }
-            }
-        })
-
-        var result = new Vue({
-            el: "#result",
-            data: {
-                code: ''
-            },
-            methods: {
-                error: function(error) {
-                    app.error = error
-                    document.body.scrollTop = 0; // For Safari
-                    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-                },
-                create: function() {
-                    let status = true
-                    let combinestatus = true
-                    let anim = true
-
-                    let table = {}
-
-                    for (val in app.object) {
-                        if (app.object[val].mode !== 'checkbox') {
-                            console.log(app.object[val].text)
-                            if (app.object[val].text !== true && app.object[val].text !== false && app.object[val].text === '') {
-                                status = false
-                                this.error('please fill all fields')
-                                return
-                            } else {
-                                if (!table[app.object[0].text]){
-                                    table[app.object[0].text] = {}
-                                }
-                                if (app.object[val].for === 'weight') {
-                                    table[app.object[0].text][app.object[val].for] = Number(app.object[val].text)
-                                } else {
-                                    table[app.object[0].text][app.object[val].for] = app.object[val].text
-                                }
-                            }
-                        } else {
-                            table[app.object[0].text][app.object[val].for] = app.object[val].text
-                        }
-                    }
-
-                    let accepts = []
-                    for (val in combine.accepts) {
-                        if (!combine.accepts[val].text || combine.accepts[val].text === '') {
-                            if (combine.accepts[val].id !== 0) {
-                                combine.Delete(combine.accepts[val].id)
-                            } else {
-                                combinestatus = false
-                            }
-                        } else {
-                            accepts.push(combine.accepts[val].text)
-                        }
-                    }
-
-
-                    if (combinestatus) {
-                        table[app.object[0].text]['combinable'] = {
-                            accept: accepts,
-                            reward: combine.reward,
-                        }
-                        if (combine.animation.dict === '' || combine.animation.name === '' || combine.animation.timeOut === '' || combine.animation.text === '') {
-                            anim = false
-                        } else {
-                            table[app.object[0].text]['combinable'].anim = {
-                                ['dict']: combine.animation.dict,
-                                ['lib']: combine.animation.name,
-                                ['timeOut']: combine.animation.timeOut,
-                                ['text']: combine.animation.text
-                            }
-                        }
-                    } else {
-                        table[app.object[0].text]['combinable'] = null
-                    }
-
-
-
-                    $.ajax({
-                        url: 'https://corsanywhere.herokuapp.com/http://mageddo.com/tools/api/json-to-lua-table',
-                        contentType: 'application/json',
-                        type: 'post',
-                        data: JSON.stringify(table),
-                        dataType: 'text',
-                        }).done(function (data) {
-                            let ragex = /\w+(?=\s+=)/g
-                            result.code = data.replace(ragex, "['$&']").replace(/(\r\n|\n|\r)/gm, "");
-                            result.code = result.code.substring(1, result.code.length - 1);
-                            result.code += ','
-                    })
-                        
-
-                    this.error('')
-                },
-                copy: function () {
-                    navigator.clipboard.writeText(result.code)
-                    alert('copied')
+                if (app.object[val].for === 'weight') {
+                  table[app.object[0].text][app.object[val].for] = Number(app.object[val].text)
+                } else {
+                  table[app.object[0].text][app.object[val].for] = app.object[val].text
                 }
+              }
+            } else if (app.object[val].for === 'unMinify') {
+              unMinify = app.object[val].text
+            } else {
+              table[app.object[0].text][app.object[val].for] = app.object[val].text
             }
-        })
-    </script>
-    
+          }
+
+          let accepts = []
+          for (val in combine.accepts) {
+            if (!combine.accepts[val].text || combine.accepts[val].text === '') {
+              if (combine.accepts[val].id !== 0) {
+                combine.Delete(combine.accepts[val].id)
+              } else {
+                combinestatus = false
+              }
+            } else {
+              accepts.push(combine.accepts[val].text)
+            }
+          }
+
+          if (combinestatus) {
+            table[app.object[0].text]['combinable'] = {
+              accept: accepts,
+              reward: combine.reward,
+            }
+            if (combine.animation.dict === '' || combine.animation.name === '' || combine.animation.timeOut === '' || combine.animation.text === '') {
+              anim = false
+            } else {
+              table[app.object[0].text]['combinable'].anim = {
+                ['dict']: combine.animation.dict,
+                ['lib']: combine.animation.name,
+                ['timeOut']: Number(combine.animation.timeOut),
+                ['text']: combine.animation.text
+              }
+            }
+          } else {
+            table[app.object[0].text]['combinable'] = null
+          }
+
+          const jsonTable = JSON.stringify(table)
+          console.log(unMinify ? "unMinify" : "Minify")
+          let result = unMinify ? jsonToLuaPretty(jsonTable) : jsonToLua(jsonTable)
+          result = unMinify ? result.substring(1, result.length - 1).split('\n').map((line) => line.substring(2)).join('\n').trim() : result.substring(1, result.length - 1).replace(/=/g, ' = ').replace(/,/g, ', ').trim()
+          result += ","
+          console.log(result)
+          this.code = result
+          this.error('')
+        },
+        copy: function () {
+          if (result.code === '') {
+            this.error('Please create first')
+          } else {
+            navigator.clipboard.writeText(result.code)
+            alert('Copied to clipboard')
+          }
+        }
+      }
+    })
+  </script>
+
 </body>
+
 </html>
